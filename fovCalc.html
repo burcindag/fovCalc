@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>FOV Calculator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #f7f7f7;
+    }
+    h2 {
+      text-align: center;
+    }
+    label {
+      display: block;
+      margin-bottom: 5px;
+    }
+    select,
+    input[type="number"],
+    input[type="range"] {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 15px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+    }
+    input[type="range"] {
+      -webkit-appearance: none;
+      width: 100%;
+      margin: 10px 0;
+    }
+    input[type="range"]:focus {
+      outline: none;
+    }
+    input[type="range"]::-webkit-slider-runnable-track {
+      width: 100%;
+      height: 8px;
+      cursor: pointer;
+      animate: 0.2s;
+      border-radius: 5px;
+      background: #ddd;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      height: 20px;
+      width: 20px;
+      border-radius: 50%;
+      background: #3498db;
+      cursor: pointer;
+      -webkit-appearance: none;
+      margin-top: -6px;
+    }
+    input[type="range"]:focus::-webkit-slider-runnable-track {
+      background: #ccc;
+    }
+    button {
+      padding: 10px 20px;
+      background-color: #3498db;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    button:hover {
+      background-color: #2980b9;
+    }
+    .sample-resolutions {
+      margin-top: 20px;
+      padding: 10px;
+      background-color: #fff;
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+  </style>
+</head>
+<body>
+  <h2>FOV Calculator</h2>
+  
+  <label for="aspectRatio">Aspect Ratio:</label>
+  <select id="aspectRatio">
+    <option value="16,9">16:9</option>
+    <option value="4,3">4:3</option>
+    <option value="21,9">21:9</option>
+    <!-- Add more aspect ratios as needed -->
+  </select>
+  
+  <label for="horizontalFOV">Horizontal FOV:</label>
+  <input type="number" id="horizontalFOV" step="0.01" placeholder="degrees">
+  
+  <label for="verticalFOV">Vertical FOV:</label>
+  <input type="number" id="verticalFOV" step="0.01" placeholder="degrees">
+  
+  <label for="fovSlider">FOV Slider:</label>
+  <input type="range" id="fovSlider" min="30" max="120" value="75" step="1">
+
+  <div class="sample-resolutions">
+    <h3>Sample Screen Resolutions</h3>
+    <ul id="sampleResolutions"></ul>
+  </div>
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const fovSlider = document.getElementById('fovSlider');
+      const horizontalFOVInput = document.getElementById('horizontalFOV');
+      const verticalFOVInput = document.getElementById('verticalFOV');
+      const aspectRatioInput = document.getElementById('aspectRatio');
+      const sampleResolutions = document.getElementById('sampleResolutions');
+
+      function calculateFOV() {
+        const aspectRatio = aspectRatioInput.value.split(',');
+        const horizontalFOV = parseFloat(horizontalFOVInput.value);
+        const aspectWidth = parseFloat(aspectRatio[0]);
+        const aspectHeight = parseFloat(aspectRatio[1]);
+        
+        const aspectRatioMultiplier = aspectWidth / aspectHeight;
+        const verticalFOV = horizontalFOV / aspectRatioMultiplier;
+        
+        verticalFOVInput.value = verticalFOV.toFixed(2);
+
+        // Update sample resolutions based on the selected aspect ratio
+        const resolutions = getSampleResolutions(aspectRatio);
+        displaySampleResolutions(resolutions);
+      }
+
+	function getSampleResolutions(aspectRatio) {
+        const resolutionsMap = {
+          '16,9': ['1920x1080 (FHD)', '1280x720 (HD)', '2560x1440 (QHD)', '3840x2160 (4K)'],
+          '4,3': ['1024x768 (XGA)', '800x600 (SVGA)', '1600x1200 (UXGA)', '1280x960'],
+          '21,9': ['2560x1080 (WFHD)', '3440x1440 (WQHD)', '5120x2160 (5K)', '3840x1600 (UWQHD)']
+          // Add more resolutions for other aspect ratios if needed
+        };
+
+        return resolutionsMap[aspectRatio];
+      }
+	  
+	 function displaySampleResolutions(resolutions) {
+        sampleResolutions.innerHTML = '';
+        resolutions.forEach(resolution => {
+          const listItem = document.createElement('li');
+          listItem.textContent = resolution;
+          sampleResolutions.appendChild(listItem);
+        });
+      }
+
+      fovSlider.addEventListener('input', function() {
+        horizontalFOVInput.value = this.value;
+        calculateFOV();
+      });
+
+      aspectRatioInput.addEventListener('change', function() {
+        calculateFOV();
+      });
+
+      horizontalFOVInput.addEventListener('input', function() {
+        calculateFOV();
+      });
+
+      // Initial calculations and sample resolutions display
+      calculateFOV();
+    });
+  </script>
+</body>
+</html>
